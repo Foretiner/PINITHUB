@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BioSubjectStatus {
+  ACTIVE
+  DELETION_PENDING
+  DELETED
+}
+
+enum EnrollmentStatus {
+  OPEN
+  PROCESSING
+  COMPLETED
+  EXPIRED
+  FAILED
+}
+
+enum EnrollmentDecision {
+  CREATED
+  DUPLICATE
+  REVIEW
+  RETRY
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model BioSubject {
+  id          String       @id @default(uuid()) @db.Uuid
+  userId      String       @unique @map("user_id")
+  status      BioSubjectStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  template    FaceTemplate?
+  searchVector FaceSearchVector?
+  consents    BiometricConsent[]
+  passkeys    PasskeyCredential[]
+  events      BioEvent[]
+  @@map("bio_subjects")
+}
+
+model FaceTemplate {
+  subjectId   String   @id @map("subject_id") @db.Uuid
+  modelVersion String  @map("model_version")
+  ciphertext  Bytes
+  iv          Bytes
+  authTag     Bytes   @map("auth_tag")
+  wrappedKey  Bytes   @map("wrapped_key")
+  quality     Float?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  subject     BioSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  @@map("face_templates")
+}
+
+model FaceSearchVector {
+  subjectId   String   @id @map("subject_id") @db.Uuid
+  modelVersion String  @map("model_version")
+  embedding Unsupported("vector(512)") @map("embedding")
+  subject     BioSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@map("face_search_vectors")
+}
+
+model EnrollmentSession {
+  id          String @id @default(uuid()) @db.Uuid
+  nonceHash   String @map("nonce_hash")
+  consentNoticeVersion String @map("consent_notice_version")
+  consentedAt DateTime @default(now()) @map("consented_at") @db.Timestamptz(6)
+  challenge   String
+  status      EnrollmentStatus @default(OPEN)
+  decision    EnrollmentDecision?
+  deviceHash  String? @map("device_hash")
+  ipHash      String? @map("ip_hash")
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  reviews     DuplicateReview[]
+  @@index([status, expiresAt])
+  @@map("enrollment_sessions")
+}
+
+model DuplicateReview {
+  id             String @id @default(uuid()) @db.Uuid
+  sessionId      String @map("session_id") @db.Uuid
+  candidateId    String @map("candidate_subject_id") @db.Uuid
+  status         ReviewStatus @default(PENDING)
+  reviewerIds    String[] @default([]) @map("reviewer_ids")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  decidedAt      DateTime? @map("decided_at") @db.Timestamptz(6)
+  session        EnrollmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@index([status, createdAt])
+  @@map("duplicate_reviews")
+}
+
+model PasskeyCredential {
+  credentialId String @id @map("credential_id")
+  subjectId    String @map("subject_id") @db.Uuid
+  publicKey    Bytes @map("public_key")
+  counter      BigInt @default(0)
+  transports   String[] @default([])
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(6)
+  subject      BioSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  @@index([subjectId, revokedAt])
+  @@map("passkey_credentials")
+}
+
+model WebauthnChallenge {
+  id        String @id @default(uuid()) @db.Uuid
+  subjectId String? @map("subject_id") @db.Uuid
+  challenge String
+  purpose   String
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@index([expiresAt])
+  @@map("webauthn_challenges")
+}
+
+model BiometricConsent {
+  id            String @id @default(uuid()) @db.Uuid
+  subjectId     String @map("subject_id") @db.Uuid
+  purpose       String
+  noticeVersion String @map("notice_version")
+  grantedAt     DateTime @default(now()) @map("granted_at") @db.Timestamptz(6)
+  withdrawnAt   DateTime? @map("withdrawn_at") @db.Timestamptz(6)
+  subject       BioSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  @@index([subjectId, purpose])
+  @@map("biometric_consents")
+}
+
+model BioEvent {
+  id        String @id @default(uuid()) @db.Uuid
+  subjectId String? @map("subject_id") @db.Uuid
+  event     String
+  outcome   String
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  subject   BioSubject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  @@index([createdAt])
+  @@map("bio_events")
+}
+
+
+
+

@@ -1,0 +1,1 @@
+-- Prisma model for vector columns is an Unsupported type, so create vector index/data columns in SQL migration.

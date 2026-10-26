@@ -1,0 +1,14 @@
+{
+  "name": "pinithub-biometric-identity",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter pinithub-bio-api build && pnpm --filter pinithub-bio-web build",
+    "db:generate": "pnpm --filter pinithub-bio-api db:generate"
+  },
+  "devDependencies": {
+    "prisma": "6.19.3"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
+  }
+}

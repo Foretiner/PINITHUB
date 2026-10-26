@@ -5,12 +5,12 @@ Plan date: Monday, 26 October 2026. The PDF schedules Phase 0 and Phase 1 today.
 ## Phase 0 — setup and foundations
 
 - [x] Project structure exists: `apps/web`, `apps/api`, `services/face`, and `prisma`.
-- [x] Local Git repository initialized. No remote repository is configured yet.
+- [x] Local Git repository initialized; the public remote is https://github.com/Foretiner/PINITHUB.
 - [x] Local PostgreSQL/pgvector starts with Docker Compose; the API health check returned `database: ok`.
 - [x] The README now documents Prisma generation, migration, API health, web startup, and the expected unavailable capture result.
 - [x] CI workflow is configured for Python tests, API tests, Prisma Client generation, and TypeScript/Vite builds. It uses frozen pnpm installs and a placeholder database URL for client generation.
 - [ ] Supabase project with pgvector: not configured; requires a Supabase project/account and credentials. Current database is local PostgreSQL/pgvector.
-- [ ] CI green on GitHub: workflow is configured but has not run in GitHub because no remote repository is configured.
+- [x] CI green on GitHub: the workflow passed after upload; see https://github.com/Foretiner/PINITHUB/actions/runs/40287486500.
 - [ ] Licence register: started in `LICENCES.md`; no face detector, recognition model, liveness model, or evaluation dataset is approved yet.
 - [ ] Under-one-hour setup acceptance: README steps are documented; a fresh-machine timing review has not been performed.
 
@@ -28,4 +28,5 @@ Plan date: Monday, 26 October 2026. The PDF schedules Phase 0 and Phase 1 today.
 - API TypeScript check: passed after fixing the Express route parameter type guard.
 - Python syntax compilation: passed.
 - Full Python test execution could not be repeated in this environment because pytest is absent from the active Python installation; the temporary test dependency folder has an incompatible `pydantic_core` binary.
-- Prisma Client regeneration hit a Windows `EPERM` while replacing its query-engine DLL. The client had already been generated for the running local API; regenerate after stopping that process if needed.
+- Prisma Client regeneration hit a Windows `EPERM` while replacing its query-engine DLL during local checks; GitHub Actions generated Prisma Client successfully.
+

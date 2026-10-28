@@ -75,6 +75,8 @@ app.post('/v1/bio/register/sessions/:id/frames', upload.array('frames', maxFrame
   const serviceToken = process.env.FACE_SERVICE_TOKEN;
   if (!serviceToken) return res.status(503).json({ decision: 'RETRY', message: 'Biometric enrollment is temporarily unavailable.' });
   const form = new FormData();
+  // Forward only the challenge persisted by the API; the browser cannot choose it.
+  form.append('challenge', session.challenge);
   for (const [index, file] of files.entries()) form.append('frames', new Blob([new Uint8Array(file.buffer).buffer as ArrayBuffer], { type: file.mimetype }), `frame-${index}.jpg`);
   try {
     const faceResponse = await fetch(`${process.env.FACE_SERVICE_URL ?? 'http://localhost:8001'}/internal/face/analyse`, {

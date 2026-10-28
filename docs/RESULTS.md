@@ -1,6 +1,6 @@
 # Results
 
-No biometric model has been approved or run. This file is a template until evaluation is performed with consented or properly licensed data.
+Pretrained SCRFD and ArcFace models are integrated for local non-commercial research evaluation; they are not approved for account identity decisions. A blank image returns `RETRY / NO_FACE`, which checks only no-face rejection. No consented bona-fide or attack sessions and no licensed benchmark pairs are available here, so recognition and PAD performance remain unmeasured.
 
 | Measure | Value | Sample size | 95% CI | Dataset/model version | Threshold |
 |---|---:|---:|---:|---|---|

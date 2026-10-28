@@ -8,12 +8,15 @@ A development prototype for the PinITHUB “one person, one account” project. 
 |---|---|
 | Web | Consent acknowledgement, camera preview, challenge display, in-memory sample capture |
 | API | Health check, expiring consent session, nonce verification, in-memory frame forwarding, upload limits |
-| Face service | Internal token check, image format/dimension validation, memory-only handling; returns unavailable without provider |
-| Database | Local PostgreSQL/pgvector schema and migration; Supabase project not connected |
+| Face service | Internal token check, image validation, challenge processing, experimental anti-spoof provider, and local SCRFD + ArcFace ONNX inference |
+| Database | Supabase migrations deployed; API health previously returned `database: ok` |
 | Evaluation | CSV tools for FMR/FNMR, FPIR/FNIR and APCER/BPCER with Wilson 95% intervals; no results measured |
-| Not implemented / not connected | Licensed face model, measured PAD, template encryption in app flow, exact reranking and serialized 1:N registration, login, passkeys, review decisions, deletion, deployment |
+| Phase 4 policy | Pure `MATCH` / `GREY_ZONE` / `NO_MATCH` / `RETRY` policy is implemented; thresholds must come from benchmark development scores and it is not yet connected to biometric enrollment |
+| Not implemented / not connected | Face embeddings are not connected to account enrollment/search; thresholds and PAD are unmeasured; template encryption is not in app flow; exact reranking and serialized 1:N registration, login, passkeys, review decisions, deletion, deployment |
 
-The local setup and camera capture work. Face analysis does not: after capture the API deliberately returns “Biometric enrollment is temporarily unavailable” and creates no account. Do not use real biometric data in this prototype.
+The local setup and camera capture work. The face service now runs an experimental research analysis, but the API deliberately returns “Biometric enrollment is temporarily unavailable” and creates no account. Do not use real biometric data outside the approved, consented research protocol.
+
+Current Mon–Wed checklist and evidence status: [`docs/WEDNESDAY_DELIVERABLES.md`](docs/WEDNESDAY_DELIVERABLES.md). Model/dataset terms: [`docs/LICENCES.md`](docs/LICENCES.md). A short project-status video is in [`output/video/PINITHUB_Status_2026-10-28.mp4`](output/video/PINITHUB_Status_2026-10-28.mp4); it is not a camera or identity-performance demo.
 
 ## Local development
 
@@ -66,17 +69,18 @@ pnpm --filter pinithub-bio-web dev
 
 Open the `Local` URL printed by Vite, usually `http://localhost:5173`. Tick the consent box and select **Start camera**. Allow camera access if the browser asks.
 
-6. Optional: start the face service in a fourth PowerShell window to check its health endpoint:
+6. Optional: start the face service in a fourth PowerShell window. This enables only local research analysis; it does not enable enrollment:
 
 ```powershell
 cd C:\path\to\bio-identity\services\face
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+.\download_models.ps1
 uvicorn app.main:app --reload --port 8001
 ```
 
-Then check `http://localhost:8001/health`. It reports `ready: false` until a reviewed model provider is approved and integrated. Sample capture is only a plumbing preview, not a liveness or identity demo. The unavailable response after capture is expected; no account is created.
+Then check `http://localhost:8001/health`. With both local model assets and requirements installed, it reports `ready: true`, `mode: research-only`, and `biometricDecisionsEnabled: false`. `ready` means only that dependencies and checksummed model files are present. The candidate has not been calibrated on this project or evaluated against the planned presentation attacks. The web/API flow still does not create an account.
 
 ## Checks
 
@@ -87,8 +91,12 @@ Then check `http://localhost:8001/health`. It reports `ready: false` until a rev
 
 ## Model and data policy
 
-Do not download or ship pretrained weights until the exact model artefact, its licence, and training-data terms have been reviewed and recorded in `docs/LICENCES.md`. The InsightFace public model zoo explicitly limits its pretrained packs to non-commercial research; software package licensing does not automatically grant commercial rights to weights. No biometric dataset is included. Use only properly licensed public data, synthetic data for speed tests, or data from people who gave informed written consent.
+The research-only experiment downloads model assets with `services/face/download_models.ps1`; it verifies checksums and stores binaries under an ignored directory. The pretrained InsightFace buffalo_l SCRFD and ArcFace models are restricted to non-commercial research. The anti-spoof candidate was pretrained upstream on CelebA-Spoof, whose agreement limits use to non-commercial research/education. Do not use these models or derived weights in a commercial/production system. Dataset images are not included or downloaded by the setup script. No dataset images or model binaries belong in Git.
 
 ## Before real identity use
 
 Complete the release blockers in `docs/THREAT_MODEL.md`: model and PAD review, independent accuracy/fairness evaluation, calibrated thresholds and confidence intervals, encryption and key management, race-safe 1:N search, passkeys and recovery, deletion and audit controls, operational security, and legal/privacy review. The DPDP Act and other applicable rules require a current review; this README is not legal advice.
+
+## Evaluation workflow
+
+Before any participant trials, read `evaluation/PAD_PROTOCOL.md`. It defines consent, local-only handling, one result per capture session, required attack categories, and the command to calculate APCER/BPCER with 95% intervals. The supplied CSV is an empty template; it contains no measured results. For recognition, `evaluation/arcface_golden.py` scores genuine/impostor image pairs from a licensed/consented image set; `evaluation/derive_thresholds.py` derives provisional 1:1 cutoffs from a development score file; `evaluation/time_arcface_15.py` times exactly 15 local face frames. Do not use scraped images, synthetic faces, or blank frames as accuracy evidence. Thresholds need independent validation and the 1:N margin needs gallery data.

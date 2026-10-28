@@ -23,5 +23,7 @@ work/
 
 
 .pytest_cache/
+evaluation/data/
+evaluation/runs/
 
 *.tsbuildinfo

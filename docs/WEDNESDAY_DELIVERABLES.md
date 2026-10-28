@@ -75,6 +75,6 @@ Capture only your own face, locally, following `evaluation/PAD_PROTOCOL.md`. No 
 - Repository: [Foretiner/PINITHUB](https://github.com/Foretiner/PINITHUB)
 - Licence register: [`docs/LICENCES.md`](LICENCES.md)
 - Source code, docs, tests, and evaluation tools are committed to the repository's `main` branch. Model weights, biometric captures, and the MP4 video are excluded. The video remains a local artifact.
-- GitHub currently reports this repository as private, despite your earlier request to keep it public. I couldn't reach its settings through the browser automation because the tool stopped when it couldn't confidently determine the current page URL.
+- The repository is now public. Source code, docs, tests, and evaluation tools are on `main`; model weights and face images are excluded. The status MP4 remains a local artifact.
 - Dataset decision: LFW/AgeDB include internet-sourced images with incomplete/limited rights; CFP-FP terms are unverified. The register records this conflict with “never use scraped photos.” Do not download/use a benchmark until the official terms/access agreement and this instruction can both be followed.
 

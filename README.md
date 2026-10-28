@@ -16,7 +16,7 @@ A development prototype for the PinITHUB “one person, one account” project. 
 
 The local setup and camera capture work. The face service now runs an experimental research analysis, but the API deliberately returns “Biometric enrollment is temporarily unavailable” and creates no account. Do not use real biometric data outside the approved, consented research protocol.
 
-Current Mon–Wed checklist and evidence status: [`docs/WEDNESDAY_DELIVERABLES.md`](docs/WEDNESDAY_DELIVERABLES.md). Model/dataset terms: [`docs/LICENCES.md`](docs/LICENCES.md). A short project-status video is in [`output/video/PINITHUB_Status_2026-10-28.mp4`](output/video/PINITHUB_Status_2026-10-28.mp4); it is not a camera or identity-performance demo.
+Current Mon–Wed checklist and evidence status: [`docs/WEDNESDAY_DELIVERABLES.md`](docs/WEDNESDAY_DELIVERABLES.md). Model/dataset terms: [`docs/LICENCES.md`](docs/LICENCES.md). A short status video is available in the local project output folder; it is not a camera or identity-performance demo.
 
 ## Local development
 
@@ -100,3 +100,4 @@ Complete the release blockers in `docs/THREAT_MODEL.md`: model and PAD review, i
 ## Evaluation workflow
 
 Before any participant trials, read `evaluation/PAD_PROTOCOL.md`. It defines consent, local-only handling, one result per capture session, required attack categories, and the command to calculate APCER/BPCER with 95% intervals. The supplied CSV is an empty template; it contains no measured results. For recognition, `evaluation/arcface_golden.py` scores genuine/impostor image pairs from a licensed/consented image set; `evaluation/derive_thresholds.py` derives provisional 1:1 cutoffs from a development score file; `evaluation/time_arcface_15.py` times exactly 15 local face frames. Do not use scraped images, synthetic faces, or blank frames as accuracy evidence. Thresholds need independent validation and the 1:N margin needs gallery data.
+

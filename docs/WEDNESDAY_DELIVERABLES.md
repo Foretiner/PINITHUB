@@ -74,5 +74,7 @@ Capture only your own face, locally, following `evaluation/PAD_PROTOCOL.md`. No 
 - Current 20-second status video: `output/video/PINITHUB_Status_2026-10-28.mp4`. It describes project status; it is not a live biometric camera demo.
 - Repository: [Foretiner/PINITHUB](https://github.com/Foretiner/PINITHUB)
 - Licence register: [`docs/LICENCES.md`](LICENCES.md)
-- This checkout has no Git commits or configured remote; changes and the video are local and have not been published to GitHub.
+- Source code, docs, tests, and evaluation tools are committed to the repository's `main` branch. Model weights, biometric captures, and the MP4 video are excluded. The video remains a local artifact.
+- GitHub currently reports this repository as private, despite your earlier request to keep it public. I couldn't reach its settings through the browser automation because the tool stopped when it couldn't confidently determine the current page URL.
 - Dataset decision: LFW/AgeDB include internet-sourced images with incomplete/limited rights; CFP-FP terms are unverified. The register records this conflict with “never use scraped photos.” Do not download/use a benchmark until the official terms/access agreement and this instruction can both be followed.
+

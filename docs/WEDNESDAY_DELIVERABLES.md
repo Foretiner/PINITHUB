@@ -1,49 +1,49 @@
 # Mon–Wed checklist and evidence
 
-Date: Wednesday, 28 October 2026. Phase 6 evaluation is scheduled for Saturday, 31 October. Phase 0 is complete; Phase 1 implementation is in place but golden validation is pending; Phase 2 software implementation is complete; Phase 3 is in progress. The original plan PDF's Section 1.3 is not present in this checkout, so this is a repository-derived checklist, not a verbatim transcription.
+Date: Wednesday, 28 October 2026. Phase 6 evaluation is scheduled for Saturday, 31 October. This is a repository-derived checklist because the original plan PDF's Section 1.3 is not in this checkout.
 
 ## Mon–Wed checklist
 
 ### Monday — Phase 0 foundation
 
-- [x] App, API, face service, Prisma schema, README run instructions, and CI workflow are in the repo.
+- [x] App, API, face service, Prisma schema, README run instructions, and CI workflow are in the repository.
 - [x] Supabase migrations and API database health were confirmed by the user.
-- [x] No model training or fine-tuning; pretrained models only.
-- [x] `LICENCES.md` now records model/data terms, checksums, and unresolved benchmark rights.
+- [x] No training or fine-tuning is used; the project uses pretrained models.
+- [x] `docs/LICENCES.md` records model/data terms, checksums, and benchmark-rights limits.
 - [ ] Fresh-machine setup time (target under one hour) has not been measured.
 
-**Phase 0: complete.**
+**Phase 0: complete, except the optional fresh-machine timing measurement.**
 
 ### Monday — Phase 1 face pipeline
 
 - [x] Pretrained InsightFace buffalo_l SCRFD detector and ArcFace embedding model integrated for local CPU inference; hashes are pinned in `services/face/app/recognition.py` and `services/face/download_models.ps1`.
-- [x] Added an authenticated local face-service embedding endpoint and golden-pair evaluation CLI. No embedding is written to disk or sent to the browser.
-- [x] Added 15-frame CPU timing CLI; it requires 15 real, local face frames.
-- [ ] Run same-person, different-person, and difficult-pair golden cases on consented captures or approved benchmark data.
-- [ ] Run 15-frame timing on real captures and record hardware/model/latency.
+- [x] Authenticated local face-service embedding endpoint and golden-pair evaluation CLI are implemented. Embeddings are not written to disk or sent to the browser.
+- [x] Fifteen real camera frames processed successfully by the CPU timing CLI; measured results are below.
+- [ ] Genuine/impostor/difficult-pair golden tests are not measured. No approved image-pair benchmark is available under the current no-scraped-photos instruction and documented dataset terms.
 
-**Phase 1: implementation complete; measured validation pending.**
+**Phase 1: pipeline and timing are complete; golden accuracy validation remains pending.**
 
 ### Tuesday — Phase 2 liveness
 
-- [x] Liveness challenge and capture flow, local-only submission helper, PAD metrics calculator, and protocol implemented.
+- [x] Liveness challenge and capture flow, local-only submission helper, PAD metrics calculator, and protocol are implemented.
 - [x] InsightFace and liveness assets pass local checksum verification.
-- [ ] Capture at least 20 trials of each own-face attack: printed photo, phone screen, laptop screen, replay. No trials are recorded yet.
-- [ ] Calculate APCER/BPCER and intervals in the Phase 6 evaluation on Saturday.
+- [x] One own-face phone-screen session was submitted locally; it returned `RETRY` and is recorded as a non-acceptance.
+- [ ] Required collection is at least 20 sessions per category. Current counts: print 0/20, phone 1/20, laptop 0/20, replay 0/20.
+- [ ] Bona-fide PAD sessions are still needed to measure BPCER. Run the planned Phase 6 evaluation on Saturday, 31 October.
 
-**Phase 2: software implementation complete; trial measurements pending Phase 6.**
+**Phase 2: software is implemented; the requested attack collection is incomplete.**
 
 ### Wednesday — Phase 3 and Phase 4
 
-- [x] API and web production builds pass; API tests pass 4/4.
-- [x] Python face-service and evaluation tests pass 19/19.
-- [x] ONNX CPU sessions load and model checksums pass. Blank-image input returns `RETRY / NO_FACE`; this is rejection-path smoke coverage, not an accuracy result.
-- [x] Phase 4 decision function implements `MATCH`, `GREY_ZONE`, `NO_MATCH`, and `RETRY`.
-- [x] Added a development-score threshold derivation CLI. It derives a provisional match cutoff from impostor scores, plus a review band. The 1:N margin must be based on gallery results; there are no biometric thresholds configured yet.
-- [ ] Connect recognition to enrollment/search and validate the 1:N policy; API enrollment remains unavailable.
-- [ ] Obtain authorized benchmark/capture scores and derive provisional thresholds.
+- [x] API and web production builds passed; API tests passed 4/4.
+- [x] Python face-service and evaluation tests passed 19/19.
+- [x] ONNX CPU sessions load and model checksums pass. Blank-image input returns `RETRY / NO_FACE`; this is a rejection-path smoke check, not an accuracy result.
+- [x] Phase 4 policy code implements `MATCH`, `GREY_ZONE`, `NO_MATCH`, and `RETRY`.
+- [x] Threshold-derivation CLI is implemented for future development impostor scores and 1:N gallery margin data.
+- [ ] Connect recognition to enrollment/search and validate the 1:N policy; enrollment remains unavailable.
+- [ ] Derive provisional numeric thresholds from authorized genuine/impostor scores. No scores are available yet, so no thresholds are configured and `biometricDecisionsEnabled` remains false.
 
-**Phase 3: in progress.** Local detection and embedding work; enrollment/search integration and real-data measurements remain. Phase 4 policy code is implemented locally; operational account decisions remain unavailable.
+**Phase 3: in progress. Phase 4 logic is implemented, but calibration and application integration remain.**
 
 ## Requested results
 
@@ -51,30 +51,34 @@ Date: Wednesday, 28 October 2026. Phase 6 evaluation is scheduled for Saturday, 
 
 | Evidence | Result | Status |
 |---|---|---|
-| Same-person golden match | Not measured; no consented or approved benchmark image pairs are available in this workspace | Pending real data |
-| Different-person golden non-match | Not measured | Pending real data |
-| Difficult-pair / grey-zone case | Not measured | Pending real data |
-| 15-frame CPU timing | Not measured; CLI is ready, but timing requires 15 real face frames | Pending capture |
+| Same-person golden match | Not measured; no approved genuine image-pair set | Pending |
+| Different-person golden non-match | Not measured; no approved impostor image-pair set | Pending |
+| Difficult-pair / grey-zone case | Not measured | Pending |
+| 15-frame CPU timing | 15/15 frames succeeded; total 23.7053 s; mean 1,580.35 ms/frame; CPUExecutionProvider; Intel64 Family 6 Model 142 Stepping 12; Python 3.11.9 | Measured on local consented camera frames |
 
-Run `evaluation/arcface_golden.py` on a consented/authorized pair CSV to save pair scores and FMR/FNMR with 95% Wilson intervals. Run `evaluation/time_arcface_15.py` with exactly 15 local frame paths. Do not substitute dummy faces or blank frames for accuracy or timing evidence. Synthetic vectors are only for the 1M-vector speed test.
+The 15 frames are local research data and are not committed. This timing measures the current model/runtime on the reported machine; it is not a benchmark accuracy result. Do not use dummy faces, blank frames, or synthetic vectors for accuracy tests. Synthetic vectors are permitted only for the 1M-vector speed test.
 
-### Phase 2 attack results (no samples captured)
+The benchmark register documents why LFW, CFP-FP, and AgeDB have not been downloaded: their image provenance/terms are unresolved or conflict with the instruction not to use scraped photos. No benchmark scores or ArcFace golden results are claimed.
 
-| Own-face attack | Required | Recorded | APCER |
+### Phase 2 attack results
+
+| Own-face attack | Target | Recorded | Outcome / APCER |
 |---|---:|---:|---|
 | Printed photo | 20 | 0 | Not measured |
-| Phone screen | 20 | 0 | Not measured |
+| Phone screen | 20 | 1 | `RETRY` (reason blank), counted as non-acceptance; APCER 0/1 = 0%, 95% Wilson interval 0–79.35% |
 | Laptop screen | 20 | 0 | Not measured |
 | Replay video | 20 | 0 | Not measured |
 
-Capture only your own face, locally, following `evaluation/PAD_PROTOCOL.md`. No face images are committed or uploaded. A bona-fide set is also needed to measure BPCER.
+This is one phone-screen observation, not evidence of reliable spoof detection. No bona-fide PAD sample is in the results file, so BPCER is not measured. The result row is in the local ignored file `evaluation/runs/pad_results.csv`; the face images remain local and are not published.
 
-## Demo and repository
+### Demo and repository
 
-- Current 20-second status video: `output/video/PINITHUB_Status_2026-10-28.mp4`. It describes project status; it is not a live biometric camera demo.
-- Repository: [Foretiner/PINITHUB](https://github.com/Foretiner/PINITHUB)
-- Licence register: [`docs/LICENCES.md`](LICENCES.md)
-- Source code, docs, tests, and evaluation tools are committed to the repository's `main` branch. Model weights, biometric captures, and the MP4 video are excluded. The video remains a local artifact.
-- The repository is now public. Source code, docs, tests, and evaluation tools are on `main`; model weights and face images are excluded. The status MP4 remains a local artifact.
-- Dataset decision: LFW/AgeDB include internet-sourced images with incomplete/limited rights; CFP-FP terms are unverified. The register records this conflict with “never use scraped photos.” Do not download/use a benchmark until the official terms/access agreement and this instruction can both be followed.
+- A 20-second project status video is available locally at `output/video/PINITHUB_Status_2026-10-28.mp4`. It is a status/demo video, not a live biometric camera-performance recording.
+- Public repository: [Foretiner/PINITHUB](https://github.com/Foretiner/PINITHUB).
+- Licence register: [`docs/LICENCES.md`](LICENCES.md).
+- Source code, docs, tests, and evaluation tools are on the repository's `main` branch. Face images, model weights, and video files are excluded.
+
+## Completion status
+
+Phase 0 is complete. Phase 1 implementation and the requested 15-frame timing are complete; golden accuracy tests remain pending. Phase 2 software and one phone-screen test are complete; the 20-per-category attack set and bona-fide PAD results are not complete. Phase 3 remains in progress. Phase 4 decision logic exists, but numerical thresholds and enrollment/search integration remain pending authorized identity scores.
 

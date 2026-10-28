@@ -10,8 +10,8 @@ A development prototype for the PinITHUB “one person, one account” project. 
 | API | Health check, expiring consent session, nonce verification, in-memory frame forwarding, upload limits |
 | Face service | Internal token check, image validation, challenge processing, experimental anti-spoof provider, and local SCRFD + ArcFace ONNX inference |
 | Database | Supabase migrations deployed; API health previously returned `database: ok` |
-| Evaluation | CSV tools for FMR/FNMR, FPIR/FNIR and APCER/BPCER with Wilson 95% intervals; no results measured |
-| Phase 4 policy | Pure `MATCH` / `GREY_ZONE` / `NO_MATCH` / `RETRY` policy is implemented; thresholds must come from benchmark development scores and it is not yet connected to biometric enrollment |
+| Evaluation | CSV tools for FMR/FNMR, FPIR/FNIR and APCER/BPCER; one phone-screen PAD session recorded (`RETRY`, APCER 0/1); 15-frame CPU timing measured; golden accuracy pairs not measured |
+| Phase 4 policy | `MATCH` / `GREY_ZONE` / `NO_MATCH` / `RETRY` policy and threshold derivation are implemented; numeric cutoffs are not configured because authorized identity scores are unavailable, and policy is not connected to enrollment |
 | Not implemented / not connected | Face embeddings are not connected to account enrollment/search; thresholds and PAD are unmeasured; template encryption is not in app flow; exact reranking and serialized 1:N registration, login, passkeys, review decisions, deletion, deployment |
 
 The local setup and camera capture work. The face service now runs an experimental research analysis, but the API deliberately returns “Biometric enrollment is temporarily unavailable” and creates no account. Do not use real biometric data outside the approved, consented research protocol.
@@ -99,5 +99,5 @@ Complete the release blockers in `docs/THREAT_MODEL.md`: model and PAD review, i
 
 ## Evaluation workflow
 
-Before any participant trials, read `evaluation/PAD_PROTOCOL.md`. It defines consent, local-only handling, one result per capture session, required attack categories, and the command to calculate APCER/BPCER with 95% intervals. The supplied CSV is an empty template; it contains no measured results. For recognition, `evaluation/arcface_golden.py` scores genuine/impostor image pairs from a licensed/consented image set; `evaluation/derive_thresholds.py` derives provisional 1:1 cutoffs from a development score file; `evaluation/time_arcface_15.py` times exactly 15 local face frames. Do not use scraped images, synthetic faces, or blank frames as accuracy evidence. Thresholds need independent validation and the 1:N margin needs gallery data.
+Read `evaluation/PAD_PROTOCOL.md` before participant trials. It defines consent, local-only handling, one result per capture session, required attack categories, and the command to calculate APCER/BPCER with 95% intervals. The local results file currently has one phone-screen session (`RETRY`) and no bona-fide rows; the other attack categories remain unmeasured. For recognition, `evaluation/arcface_golden.py` scores genuine/impostor image pairs from a licensed/consented image set; `evaluation/derive_thresholds.py` derives provisional 1:1 cutoffs from a development score file; `evaluation/time_arcface_15.py` times exactly 15 local face frames. Do not use scraped images, synthetic faces, or blank frames as accuracy evidence. Thresholds need independent validation and the 1:N margin needs gallery data.
 
